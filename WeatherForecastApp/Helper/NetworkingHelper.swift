@@ -5,7 +5,6 @@
 //  Created by Ece Poyraz on 14.01.2024.
 //
 
-
 import Foundation
 import Alamofire
 import UIKit

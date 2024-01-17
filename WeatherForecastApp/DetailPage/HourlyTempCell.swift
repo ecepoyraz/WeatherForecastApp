@@ -31,33 +31,32 @@ class HourlyTempCell: UICollectionViewCell {
         dn.numberOfLines = 0
         return dn
     }()
-    
     lazy var temperatureValuee: UILabel = {
-       let t = UILabel()
-       t.textColor = .black
-       t.font = UIFont.systemFont(ofSize: 15)
+        let t = UILabel()
+        t.textColor = .black
+        t.font = UIFont.systemFont(ofSize: 15)
         t.numberOfLines = 0
-       return t
-   }()
+        return t
+    }()
     lazy var iconWeather: UIImageView = {
-       let t = UIImageView()
-       return t
-   }()
+        let t = UIImageView()
+        return t
+    }()
     lazy var humidityHourly: UILabel = {
-       let t = UILabel()
-       t.textColor = .black
-       t.font = UIFont.systemFont(ofSize: 15)
+        let t = UILabel()
+        t.textColor = .black
+        t.font = UIFont.systemFont(ofSize: 15)
         t.numberOfLines = 0
-       return t
-   }()
+        return t
+    }()
     lazy var windHourly: UILabel = {
-       let t = UILabel()
-       t.textColor = .black
-       t.font = UIFont.systemFont(ofSize: 15)
-       t.numberOfLines = 0
-       return t
-   }()
-  
+        let t = UILabel()
+        t.textColor = .black
+        t.font = UIFont.systemFont(ofSize: 15)
+        t.numberOfLines = 0
+        return t
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
@@ -67,33 +66,31 @@ class HourlyTempCell: UICollectionViewCell {
         super.init(coder: coder)
         setupViews()
     }
-    
-     public func configure(object: WeatherDailyModel.List) {
-         let dateFormatter = DateFormatter()
-         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-
-         if let date = dateFormatter.date(from: object.dtTxt) {
-             dateFormatter.dateFormat = "h:mm a"
-             let hourString = dateFormatter.string(from: date)
-             hourName.text = hourString
-             let iconName = object.weather.first?.icon
-             if let iconName = iconName {
-                 let imageURLString = "https://openweathermap.org/img/w/\(iconName).png"
-                 if let imageURL = URL(string: imageURLString) {
-                     loadImageFromURL(url: imageURL)
-                 } else {
-                     print("Geçersiz URL")
-                 }
-             }
-         } else {
-             print("Geçersiz tarih formatı")
-         }
-
-         temperatureValuee.text = " \(String(format: "%.2f", object.main.temp - 273))°C\nTemp"
-         humidityHourly.text =  " %\(String(object.main.humidity))\nHumidity"
-         windHourly.text =  " \( String(object.wind.speed))km/sa \n Wind Speed"
-     }
-    
+    public func configure(object: WeatherDailyModel.List) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        
+        if let date = dateFormatter.date(from: object.dtTxt) {
+            dateFormatter.dateFormat = "h:mm a"
+            let hourString = dateFormatter.string(from: date)
+            hourName.text = hourString
+            let iconName = object.weather.first?.icon
+            if let iconName = iconName {
+                let imageURLString = "https://openweathermap.org/img/w/\(iconName).png"
+                if let imageURL = URL(string: imageURLString) {
+                    loadImageFromURL(url: imageURL)
+                } else {
+                    print("Geçersiz URL")
+                }
+            }
+        } else {
+            print("Geçersiz tarih formatı")
+        }
+        
+        temperatureValuee.text = " \(String(format: "%.2f", object.main.temp - 273))°C\nTemp"
+        humidityHourly.text =  " %\(String(object.main.humidity))\nHumidity"
+        windHourly.text =  " \( String(object.wind.speed))km/sa \n Wind Speed"
+    }
     func loadImageFromURL(url: URL) {
         URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
             if let error = error {
@@ -114,7 +111,6 @@ class HourlyTempCell: UICollectionViewCell {
         self.contentView.addSubview(cellView)
         setupLayout()
     }
-    
     func setupLayout() {
         cellView.bottomToSuperview(offset:10)
         cellView.leadingToSuperview(offset:5)
@@ -141,9 +137,7 @@ class HourlyTempCell: UICollectionViewCell {
         iconWeather.width(50)
         iconWeather.trailingToSuperview(offset: 5)
         iconWeather.centerY(to: temperatureValuee)
-       
     }
-  
 }
 
 //#if DEBUG

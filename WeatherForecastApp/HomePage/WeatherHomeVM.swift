@@ -9,26 +9,25 @@ import Foundation
 import Alamofire
 
 class WeatherHomeVM {
-    
+    var firstSecreenUpdateClosure: (()->(Void))?
+    var updateClosure: (()->(Void))?
+    var dailyClosure: (()->(Void))?
+    var alertClosure: (()->(Void))?
     var currentWeather: WeatherModel.Weather? {
         didSet{
             fetch(lat: currentWeather?.coord.lat, lon: currentWeather?.coord.lon)
         }
     }
     var modifiedList = [WeatherDailyModel.List]()
-    var firstSecreenUpdateClosure: (()->(Void))?
-    var updateClosure: (()->(Void))?
-    var dailyClosure: (()->(Void))?
-    var alertClosure: (()->(Void))?
     var dailyWeather: WeatherDailyModel.WeatherDaily? {
         didSet{
             DispatchQueue.main.async {
-                      self.dailyClosure?()
-                  }
+                self.dailyClosure?()
+            }
             firstSecreenUpdateClosure?()
         }
     }
-    //firstscreen için data fonksiyonu
+    // MARK: Home Currently Weather Datas with cityName
     func getWeatherData(cityName: String){
         let apiKey = "48478ebb7533077eb32e1d7022d26429"
         let url =  "https://api.openweathermap.org/data/2.5/weather?q=\(cityName)&appid=\(apiKey)"
@@ -43,27 +42,23 @@ class WeatherHomeVM {
             }
         })
     }
-    //tableviewe all verilerin çekilmesi
+    //MARK: Home Currently Weather All Daily Hourly Datas with lon and lat
     func fetch(lat: Double?, lon: Double?){
-        
         guard let lat = lat, let lon = lon else {return}
-        
         let apiKey = "48478ebb7533077eb32e1d7022d26429"
         let url =  "https://api.openweathermap.org/data/2.5/forecast?lat=\(lat)&lon=\(lon)&appid=\(apiKey)"
         let parameters: Parameters = [:]
-        
         NetworkingHelper.shared.getDataFromRemote(url: url, method: .get, params: parameters, callback: { (result:Result<WeatherDailyModel.WeatherDaily,Error>) in
             switch result {
             case .success(let data):
                 self.dailyWeather = data
                 self.keepUniqueDates()
-                print(self.dailyWeather)
             case .failure(let error):
                 print("Hata: \(error)")
             }
         })
     }
-    //tableviewe modified DAily verilerin çekilmesi
+    //MARK: Home Daily Filtered Datas
     func keepUniqueDates() {
         guard let dailyWeather = dailyWeather else { return }
         let dateFormatter = DateFormatter()
@@ -86,9 +81,7 @@ class WeatherHomeVM {
         dailyClosure?()
         
     }
-    
-    //collectionviewe filtered Hourly verilerin çekilmesi
-    
+    //MARK: Present Detail Page Hourly Filtered Datas
     func keepUniqueHour(refferanceDate: String) -> [ WeatherDailyModel.List] {
         guard let dailyWeather = dailyWeather else { return [] }
         let dateFormatter = DateFormatter()

@@ -68,6 +68,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		5E3143132B57CC91007FBD4C /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				5EB343CF2B533A6D000EBD7D /* NetworkingHelper.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
 		5E39FE502B52B994001BA05F = {
 			isa = PBXGroup;
 			children = (
@@ -87,7 +95,7 @@
 		5E39FE5B2B52B995001BA05F /* WeatherForecastApp */ = {
 			isa = PBXGroup;
 			children = (
-				5EB343CF2B533A6D000EBD7D /* NetworkingHelper.swift */,
+				5E3143132B57CC91007FBD4C /* Helper */,
 				5E257B032B56F93300986E30 /* Models */,
 				5EB343C92B5303C4000EBD7D /* HomePage */,
 				5EB343C82B5303A1000EBD7D /* DetailPage */,

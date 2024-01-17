@@ -99,7 +99,6 @@ class WeatherDayCell: UITableViewCell {
         viewCell.addSubviews(dayName, temperatureValue, iconView)
         setupLayout()
     }
-    
     func setupLayout() {
         
         viewCell.topToSuperview(offset:5)
@@ -117,7 +116,6 @@ class WeatherDayCell: UITableViewCell {
         iconView.centerYToSuperview()
         iconView.height(to: viewCell)
         iconView.width(60)
-        
     }
     
 }
