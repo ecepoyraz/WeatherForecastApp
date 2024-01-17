@@ -23,6 +23,13 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         static let offset45: CGFloat = 45
         static let offset50: CGFloat = 50
     }
+    enum TemperatureSpacing {
+        static let winter: CGFloat = 10.0
+        static let spring: CGFloat = 15.0
+        static let autumn: CGFloat = 20.0
+        static let summer: CGFloat = 30.0
+    }
+    
     var uniqueDayNames = [String]()
     var deneme = DetailPageVM()
     var test = DetailPageVC()
@@ -35,6 +42,7 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         top.backgroundColor = .green
         top.image = UIImage(named: "w")
         top.isUserInteractionEnabled = true
+        top.contentMode = .scaleToFill
         return top
     }()
     lazy var CToZ: UIButton = {
@@ -45,15 +53,14 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         cz.addTarget(self, action: #selector(convertToFahrenheitToCelsius), for: .touchUpInside)
         return cz
     }()
-    lazy var windHumidtyView: UIView = {
-       let wh = UIView()
-        return wh
-    }()
     lazy var windStatus: UIButton = {
         let cz = UIButton()
         cz.isUserInteractionEnabled = true
         cz.backgroundColor = .green
         cz.addTarget(self, action: #selector(windActivePasive), for: .touchUpInside)
+        cz.setImage(UIImage(named: "windBtn"), for: .normal)
+        cz.layer.masksToBounds = true
+        cz.layer.cornerRadius = 15
         return cz
     }()
     lazy var humidtyStatus: UIButton = {
@@ -61,52 +68,65 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         cz.isUserInteractionEnabled = true
         cz.backgroundColor = .green
         cz.addTarget(self, action: #selector(humidtyActivePasive), for: .touchUpInside)
+        cz.setImage(UIImage(systemName: "humidity.fill" ), for: .normal)
+        cz.layer.cornerRadius = 15
+        cz.layer.masksToBounds = true
         return cz
     }()
     @objc func windActivePasive(){
         if windStatus.backgroundColor == .green {
             windValue.isHidden = true
+            windIcon.isHidden = true
             windStatus.backgroundColor = .red
         }else {
             windStatus.backgroundColor = .green
             windValue.isHidden = false
+            windIcon.isHidden = false
         }
     }
     @objc func humidtyActivePasive(){
         if humidtyStatus.backgroundColor == .green {
             humidityValue.isHidden = true
+            humidityIcon.isHidden = true
             humidtyStatus.backgroundColor = .red
         }else {
             humidtyStatus.backgroundColor = .green
             humidityValue.isHidden = false
+            humidityIcon.isHidden = false
         }
     }
     private lazy var cityName: UILabel = {
         let cn = UILabel()
-        cn.textColor = .blue
-        //        cn.text = "ISTANBUL"
+        cn.textColor = .black
         cn.font = UIFont.boldSystemFont(ofSize: 50)
         return cn
     }()
     private lazy var temperature: UILabel = {
         let t = UILabel()
-        t.textColor = .blue
-        //        t.text = "25°C"
+        t.textColor = .black
         t.font = UIFont.boldSystemFont(ofSize: 40)
         return t
     }()
+    lazy var windIcon: UIImageView  = {
+        let hd = UIImageView()
+        hd.image = UIImage(systemName: "wind")
+        return hd
+    }()
     private lazy var windValue: UILabel = {
         let w = UILabel()
-        w.font = UIFont.boldSystemFont(ofSize: 30)
-        w.textColor = .blue
-        //        w.text = "1000"
+        w.font = UIFont.italicSystemFont(ofSize: 16)
+        w.textColor = .black
         return w
+    }()
+    lazy var humidityIcon: UIImageView  = {
+        let hd = UIImageView()
+        hd.image = UIImage(systemName: "humidity.fill" )
+        return hd
     }()
     private lazy var humidityValue: UILabel = {
         let w = UILabel()
-        w.font = UIFont.boldSystemFont(ofSize: 30)
-        w.textColor = .blue
-        //        w.text = "63767"
+        w.font = UIFont.italicSystemFont(ofSize: 16)
+        w.textColor = .black
         return w
     }()
     private lazy var searchCity: UITextField = {
@@ -131,8 +151,10 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
     
     private lazy var searchButton: UIButton = {
         let sb = UIButton()
-        sb.setImage(UIImage(named: "s"), for: .normal)
+        sb.setImage(UIImage(named: "searchBtn"), for: .normal)
         sb.addTarget(self, action: #selector(searchAction), for: .touchUpInside)
+        sb.layer.cornerRadius = 10
+        sb.layer.masksToBounds = true
         return sb
     }()
 
@@ -183,7 +205,7 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
                     let deger = String(format: "%.2f", firstList.main.temp - 273.15)
                     self.temperature.text =  " \(deger) °C"
                     self.humidityValue.text = " % \(String((firstList.main.humidity)))"
-                    self.windValue.text = " \( String((firstList.wind.speed))) m/s "
+                    self.windValue.text = " \( String((firstList.wind.speed))) km/sa "
                     self.imageChange()
                 }
             }
@@ -193,12 +215,14 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
     func imageChange() {
         if let cleanedStringc = temperature.text?.replacingOccurrences(of: "°C", with: "").trimmingCharacters(in: .whitespaces) {
             if let temp = Double(cleanedStringc) {
-                if temp <= 14.0 {
-                    topView.image = UIImage(named: "snow")
-                } else if temp > 14.0 && temp < 50.0 {
-                    topView.image = UIImage(named: "w")
-                } else {
-                    topView.image = UIImage(named: "b")
+                if temp <= TemperatureSpacing.winter {
+                    topView.image = UIImage(named: "winter")
+                } else if temp > TemperatureSpacing.winter && temp < TemperatureSpacing.autumn {
+                    topView.image = UIImage(named: "summer")
+                } else if temp > TemperatureSpacing.autumn && temp < TemperatureSpacing.spring {
+                    topView.image = UIImage(named: "autumn")
+                }else {
+                    
                 }
             }
         }
@@ -239,15 +263,15 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         self.view.addSubviews()
         self.view.addSubview(topView)
         topView.addSubview(CToZ)
-        topView.addSubview(windHumidtyView)
-        windHumidtyView.addSubview(windValue)
-        windHumidtyView.addSubview(humidityValue)
         topView.addSubview(cityName)
         topView.addSubview(temperature)
-//        topView.addSubview(windValue)
+        topView.addSubview(windValue)
         topView.addSubview(windStatus)
-//        topView.addSubview(humidityValue)
+        topView.addSubview(windIcon)
+        topView.addSubview(humidityIcon)
+        topView.addSubview(humidityValue)
         topView.addSubview(humidtyStatus)
+        topView.addSubview(humidityIcon)
         topView.addSubview(searchCity)
         topView.addSubview(searchButton)
         self.view.addSubview(tableView)
@@ -269,47 +293,53 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         topView.topToSuperview()
         topView.leadingToSuperview()
         topView.trailingToSuperview()
-        topView.heightToSuperview(multiplier: 0.44)
+        topView.heightToSuperview(multiplier: 0.5)
 
         cityName.topToSuperview(offset: LayoutOffsets.offset20, usingSafeArea: true)
         cityName.centerXToSuperview()
         cityName.height(50)
         
-        CToZ.height(50)
-        CToZ.width(50)
+        CToZ.height(30)
+        CToZ.width(30)
         CToZ.trailingToSuperview(offset: LayoutOffsets.offset20)
         CToZ.centerY(to: cityName)
         
         temperature.topToBottom(of: cityName, offset: LayoutOffsets.offset20)
         temperature.centerXToSuperview()
         
-        windHumidtyView.topToBottom(of: temperature, offset: 20)
-        windHumidtyView.centerXToSuperview()
+        windIcon.height(20)
+        windIcon.width(20)
+        windIcon.leadingToSuperview(offset:5)
+        windIcon.bottomToTop(of: tableView, offset: -10)
         
-//        windValue.topToBottom(of: temperature, offset: LayoutOffsets.offset10)
-        windValue.height(50)
-//        windValue.leading(to: temperature)
+        windValue.height(to: windIcon)
+        windValue.leadingToTrailing(of: windIcon, offset: 10)
+        windValue.centerY(to: windIcon)
         
-        humidityValue.centerY(to: windValue)
-        humidityValue.leadingToTrailing(of: windValue, offset: 30)
-        humidityValue.height(50)
+        humidityIcon.centerY(to: windValue)
+        humidityIcon.height(20)
+        humidityIcon.leadingToTrailing(of: windValue, offset: 10)
+        
+        humidityValue.leadingToTrailing(of: humidityIcon, offset: 10)
+        humidityValue.height(20)
+        humidityValue.centerY(to: humidityIcon)
         
         windStatus.topToBottom(of: CToZ, offset: 5)
-        windStatus.height(20)
-        windStatus.width(20)
+        windStatus.height(30)
+        windStatus.width(30)
         windStatus.centerX(to: CToZ)
         
         humidtyStatus.topToBottom(of: windStatus, offset: LayoutOffsets.offset10)
-        humidtyStatus.height(20)
-        humidtyStatus.width(20)
+        humidtyStatus.height(30)
+        humidtyStatus.width(30)
         humidtyStatus.centerX(to: CToZ)
   
-        searchCity.topToBottom(of: windValue, offset: LayoutOffsets.offset10)
         searchCity.centerXToSuperview()
         searchCity.height(45)
         searchCity.leadingToSuperview(offset: LayoutOffsets.offset40)
+        searchCity.bottomToTop(of: humidityIcon, offset: -20)
         
-        searchButton.leadingToTrailing(of: searchCity, offset: 0)
+        searchButton.leadingToTrailing(of: searchCity, offset: 5)
         searchButton.height(30)
         searchButton.width(30)
         searchButton.centerY(to: searchCity)
