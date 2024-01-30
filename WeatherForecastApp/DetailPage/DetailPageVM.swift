@@ -8,7 +8,6 @@ import Foundation
 import Alamofire
 
 class DetailPageVM {
-    
     var reloadClosure: (()->(Void))?
     var arrFive: [WeatherDailyModel.List]? {
         didSet{

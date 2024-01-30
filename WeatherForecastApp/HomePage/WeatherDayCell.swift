@@ -1,5 +1,5 @@
 //
-//  
+//
 //  WeatherDayCell.swift
 //  WeatherForecastApp
 //
@@ -10,7 +10,7 @@ import UIKit
 import TinyConstraints
 
 class WeatherDayCell: UITableViewCell {
-    
+    let viewModel = WeatherHomeVM()
     static let reuseIdentifier: String = "WeatherDayCell"
     
     lazy var viewCell:UIView = {
@@ -56,39 +56,27 @@ class WeatherDayCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    public func configure(object: WeatherDailyModel.List) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
-        if let date = dateFormatter.date(from: object.dtTxt) {
-            dateFormatter.dateFormat = "EEEE"
-            let dayNameString = dateFormatter.string(from: date)
+    func configure(object: WeatherDailyModel.List) {
+        if let dayNameString = viewModel.formatDate(from:  object.dtTxt) {
             let iconName = object.weather.first?.icon
             if let iconName = iconName {
                 let imageURLString = "https://openweathermap.org/img/w/\(iconName).png"
                 if let imageURL = URL(string: imageURLString) {
-                    loadImageFromURL(url: imageURL)
+                    viewModel.loadImageFromURL(url: imageURL)
+                    viewModel.iconImage = { [weak self] data in
+                        if let image = UIImage(data: data!) {
+                            DispatchQueue.main.async {
+                                self?.iconView.image = image
+                            }
+                        }
+                    }
                 } else {
                     print("Geçersiz URL")
                 }
             }
             dayName.text = dayNameString
             temperatureValue.text = " \(String(format: "%.2f", object.main.temp - 273.15)) °C"
-            
-        } else {
-            print("Geçersiz tarih formatı")
         }
-    }
-    func loadImageFromURL(url: URL) {
-        URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
-            if let error = error {
-                print("Resim yüklenirken hata oluştu: \(error)")
-            } else if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self?.iconView.image = image
-                }
-            }
-        }.resume()
     }
     func setupViews() {
         self.selectionStyle = .none
@@ -117,5 +105,4 @@ class WeatherDayCell: UITableViewCell {
         iconView.height(to: viewCell)
         iconView.width(60)
     }
-    
 }

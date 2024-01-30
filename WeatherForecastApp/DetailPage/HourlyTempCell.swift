@@ -10,7 +10,8 @@ import UIKit
 import TinyConstraints
 
 class HourlyTempCell: UICollectionViewCell {
-    
+    var viewModel = DetailPageVM()
+    var viewModelWeatherHome = WeatherHomeVM()
     lazy var cellView:UIView = {
         let vc = UIView()
         vc.backgroundColor = UIColor(named: "cell")
@@ -66,41 +67,28 @@ class HourlyTempCell: UICollectionViewCell {
         super.init(coder: coder)
         setupViews()
     }
-    public func configure(object: WeatherDailyModel.List) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
-        if let date = dateFormatter.date(from: object.dtTxt) {
-            dateFormatter.dateFormat = "h:mm a"
-            let hourString = dateFormatter.string(from: date)
-            hourName.text = hourString
+    func configure(object: WeatherDailyModel.List) {
+        if let dayNameString = viewModelWeatherHome.formatDate(from:  object.dtTxt) {
             let iconName = object.weather.first?.icon
             if let iconName = iconName {
                 let imageURLString = "https://openweathermap.org/img/w/\(iconName).png"
                 if let imageURL = URL(string: imageURLString) {
-                    loadImageFromURL(url: imageURL)
+                    viewModelWeatherHome.loadImageFromURL(url: imageURL)
+                    viewModelWeatherHome.iconImage = { [weak self] data in
+                        if let image = UIImage(data: data!) {
+                            DispatchQueue.main.async {
+                                self?.iconWeather.image = image
+                            }
+                        }
+                    }
                 } else {
                     print("Geçersiz URL")
                 }
             }
-        } else {
-            print("Geçersiz tarih formatı")
+            temperatureValuee.text = " \(String(format: "%.2f", object.main.temp - 273))°C\nTemp"
+            humidityHourly.text =  " %\(String(object.main.humidity))\nHumidity"
+            windHourly.text =  " \( String(object.wind.speed))km/sa \n Wind Speed"
         }
-        
-        temperatureValuee.text = " \(String(format: "%.2f", object.main.temp - 273))°C\nTemp"
-        humidityHourly.text =  " %\(String(object.main.humidity))\nHumidity"
-        windHourly.text =  " \( String(object.wind.speed))km/sa \n Wind Speed"
-    }
-    func loadImageFromURL(url: URL) {
-        URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
-            if let error = error {
-                print("Resim yüklenirken hata oluştu: \(error)")
-            } else if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self?.iconWeather.image = image
-                }
-            }
-        }.resume()
     }
     func setupViews() {
         cellView.addSubview(hourName)
@@ -139,15 +127,3 @@ class HourlyTempCell: UICollectionViewCell {
         iconWeather.centerY(to: temperatureValuee)
     }
 }
-
-//#if DEBUG
-//import SwiftUI
-//
-//@available(iOS 13, *)
-//struct HourlyTempCell_Preview: PreviewProvider {
-//    static var previews: some View{
-//
-//        HourlyTempCell().showPreview()
-//    }
-//}
-//#endif

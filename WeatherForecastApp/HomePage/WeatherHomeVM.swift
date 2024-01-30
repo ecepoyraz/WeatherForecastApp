@@ -9,6 +9,10 @@ import Foundation
 import Alamofire
 
 class WeatherHomeVM {
+    
+    let dateFormatter = DateFormatter()
+    var iconImage: ((Data?) -> Void)?
+    var error: ((Error) -> Void)?
     var firstSecreenUpdateClosure: (()->(Void))?
     var updateClosure: (()->(Void))?
     var dailyClosure: (()->(Void))?
@@ -26,6 +30,30 @@ class WeatherHomeVM {
             }
             firstSecreenUpdateClosure?()
         }
+    }
+    //MARK: Icon Image
+    func loadImageFromURL(url: URL) {
+        URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
+            if let error = error {
+                self?.error?(error)
+            } else if let data = data {
+                DispatchQueue.main.async {
+                    self?.iconImage?(data)
+                }
+            }
+        }.resume()
+    }
+    //MARK: Date Formater
+    func formatDate(from dateString: String) -> String? {
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        guard let date = dateFormatter.date(from: dateString) else {
+            print("Geçersiz tarih formatı")
+            return nil
+        }
+        
+        dateFormatter.dateFormat = "EEEE"
+        let dayNameString = dateFormatter.string(from: date)
+        return dayNameString
     }
     // MARK: Home Currently Weather Datas with cityName
     func getWeatherData(cityName: String){

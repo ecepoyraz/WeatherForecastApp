@@ -8,10 +8,6 @@
 import UIKit
 import Foundation
 import SwiftUI
-
-import UIKit
-import SwiftUI
-
 // MARK: - Format Type
 enum FormatType:String {
     case longFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
@@ -260,25 +256,7 @@ extension UIButton {
 
 // MARK: - UIViewController
 extension UIViewController {
-    
-    @available(iOS 13, *)
-        private struct Preview: UIViewControllerRepresentable {
-             
-            let viewController: UIViewController
-            
-            func makeUIViewController(context: Context) -> UIViewController {
-                return viewController
-            }
-            
-            func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-             
-            }
-        }
-        
-        @available(iOS 13, *)
-        func showPreview() -> some View {
-            Preview(viewController: self)
-        }
+
     
     func addChild(this child: UIViewController, contentView:UIView ) {
         addChild(child)

@@ -11,6 +11,13 @@ import TinyConstraints
 
 class DetailPageVC: UIViewController {
     var viewModel = DetailPageVM()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.backgroundColor = UIColor(named: "detailPageColor")
+        reloadCollectionView()
+        configureWindHuminityValue()
+        setupViews()
+    }
     lazy var viewAll: UIView = {
         let t = UIView()
         t.layer.maskedCorners = [.layerMinXMinYCorner]
@@ -72,18 +79,16 @@ class DetailPageVC: UIViewController {
         collectionView.backgroundColor = UIColor(named: "Color")
         return collectionView
     }()
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.view.backgroundColor = UIColor(named: "detailPageColor")
+    func reloadCollectionView(){
         viewModel.reloadClosure = {
             self.collectionView.reloadData()
         }
-        self.configureWindHuminityValue()
-        setupViews()
     }
     func configureWindHuminityValue(){
-        self.humidity.text = " Currently Humidity Value %\(String((self.viewModel.arrFive?.first?.main.humidity)!) ) "
-        self.speed.text = "Currently Wind Speed Value \(String((self.viewModel.arrFive?.first?.wind.speed)!)) m/s "
+        guard let humidityText = self.viewModel.arrFive?.first?.main.humidity else {return}
+        guard let speedText = self.viewModel.arrFive?.first?.wind.speed else {return}
+        self.humidity.text = " Currently Humidity Value %\(String((humidityText))) "
+        self.speed.text = "Currently Wind Speed Value \(String((speedText))) m/s  "
     }
     func setupViews() {
         self.view.addSubviews(detailsTitle, viewAll)
@@ -140,15 +145,3 @@ extension DetailPageVC:UICollectionViewDataSource, UICollectionViewDelegateFlowL
         }
     }
 }
-
-//#if DEBUG
-//import SwiftUI
-//
-//@available(iOS 13, *)
-//struct DetailPageVC_Preview: PreviewProvider {
-//    static var previews: some View{
-//
-//        DetailPageVC().showPreview()
-//    }
-//}
-//#endif

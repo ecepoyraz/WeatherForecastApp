@@ -13,18 +13,25 @@ import Alamofire
 import CoreLocation
 
 class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
-    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        setupViews()
+        locationManagerSetup()
+        reloadView()
+        updateFirstScreen()
+        alertCityName()
+    }
     enum TemperatureSpacing {
-        static let winter: CGFloat = 10.0
-        static let spring: CGFloat = 15.0
-        static let autumn: CGFloat = 20.0
+        static let winter: CGFloat = 6.0
+        static let spring: CGFloat = 8.0
+        static let autumn: CGFloat = 10.0
         static let summer: CGFloat = 30.0
     }
     
     var uniqueDayNames = [String]()
     var viewModel = WeatherHomeVM()
     let locationManager = CLLocationManager()
-    var checkPermissionLocationStatus: Bool?
     
     private lazy var topView: UIImageView = {
         let top = UIImageView()
@@ -174,16 +181,14 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
             viewModel.getWeatherData(cityName: enteredCity)
         }
     }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        setupViews()
-        locationManagerSetup()
+    func reloadView(){
         viewModel.dailyClosure = {
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
         }
+    }
+    func updateFirstScreen() {
         viewModel.firstSecreenUpdateClosure = {
             DispatchQueue.main.async {
                 self.cityName.text = String((self.viewModel.dailyWeather?.city.name)!)
@@ -196,7 +201,6 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
                 }
             }
         }
-        alertCityName()
     }
     func imageChange() {
         if let cleanedStringc = temperature.text?.replacingOccurrences(of: "°C", with: "").trimmingCharacters(in: .whitespaces) {
@@ -243,6 +247,13 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
     }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location error: \(error.localizedDescription)")
+    }
+    func goToHourlyDetailPage(indexPath: IndexPath){
+        let vc = DetailPageVC()
+        if let dayNameString = viewModel.formatDate(from:  viewModel.modifiedList[indexPath.row].dtTxt) {
+            vc.viewModel.arrFive = viewModel.keepUniqueHour(refferanceDate: dayNameString)
+        }
+        present(vc, animated: true, completion: nil)
     }
     func setupViews() {
         self.view.addSubviews(topView,tableView)
@@ -322,20 +333,7 @@ class WeatherHomeVC: UIViewController, CLLocationManagerDelegate {
         tableView.trailingToSuperview()
         tableView.bottomToSuperview()
     }
-    func goToHourlyDetailPage(indexPath: IndexPath){
-        let vc = DetailPageVC()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
-        if let date = dateFormatter.date(from: viewModel.modifiedList[indexPath.row].dtTxt) {
-            dateFormatter.dateFormat = "EEEE"
-            let dateString = dateFormatter.string(from: date)
-            vc.viewModel.arrFive = viewModel.keepUniqueHour(refferanceDate: dateString)
-        }
-        present(vc, animated: true, completion: nil)
-    }
 }
-
 extension WeatherHomeVC:UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate  {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
